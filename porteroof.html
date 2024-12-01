@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<title>Pharmacy Porter runs</title>
+	</head>
+	<body>
+    		<h1>Pharmacy run calculator</h1>
+    		<p id="current-rotation"></p>
+
+		<h2>Select a custom week</h2>
+    		<label for="year">Year:</label>
+
+
+    		<input type="number" id="year" value="2024" required>
+    
+    		<label for="week">Week Number:</label>
+    		<input type="number" id="week" value="1" required>
+    
+    		<button onclick="updateTable()">Search</button>
+
+		<br></br>
+
+    		<div id="table-container"></div>
+
+    		<script>
+		//I think both Mr Steve and Mr Dean should give me 10 points for this, just saying :o
+ 
+  		// display the present day's porter rotation
+        	function displayCurrentRotation() {
+            		const today = new Date();
+
+            		// get current year and week number
+            		const currentYear = today.getFullYear();
+            		const startOfYear = new Date(currentYear, 0, 1); // January 1 of the current year
+            		const daysSinceStart = (today - startOfYear) / (1000 * 60 * 60 * 24);
+            		const currentWeek = Math.ceil((daysSinceStart + startOfYear.getDay() + 1) / 7);
+
+            		// get current rotation
+            		const Porter = calculateRotation(currentYear, currentWeek);
+
+            		// display this weeks rotation, highlight route 2 in red if Julie is on it
+			if (Porter[1]!="Julie"){
+            			document.getElementById("current-rotation").innerHTML = 
+                		`<span style="font-size: 18px;"><b>Year: ${currentYear}, Week: ${currentWeek}</b><br>` +
+                		`&emsp; Run 1: ${Porter[0]}<br> &emsp; <span style="color: black"> Run 2: ${Porter[1]}<br><span style="color: black"> ` +
+                		`&emsp; Run 3: ${Porter[2]}<br> &emsp; Run 4: ${Porter[3]}<br> &emsp; Run 5: ${Porter[4]}<br>`;
+			} else{
+				document.getElementById("current-rotation").innerHTML = 
+                		`<span style="font-size: 18px;"><b>Year: ${currentYear}, Week: ${currentWeek}</b><br>` +
+                		`&emsp; Run 1: ${Porter[0]}<br> &emsp; <span style="color: red"> Run 2: ${Porter[1]}<br><span style="color: black"> ` +
+                		`&emsp; Run 3: ${Porter[2]}<br> &emsp; Run 4: ${Porter[3]}<br> &emsp; Run 5: ${Porter[4]}<br>`;
+			}
+
+        	}
+
+      		//Rotation calc
+        	function calculateRotation(year, weekNumber) {
+            		const porters = ["Gavin", "MarkB", "Mike", "Julie", "Dave"];
+            		const startYear = 2024; 
+            		const totalWeeksPerYear = 52;
+
+            	//total weeks in
+            	const weeksSinceStart = (year - startYear) * totalWeeksPerYear + (weekNumber - 1);
+
+            	//mod calc  
+            	const relativeWeek = weeksSinceStart % 5;
+            	return [...porters.slice(-relativeWeek), ...porters.slice(0, -relativeWeek)];
+        	}
+
+        	//table time
+        	function generateTable(year, weekNumber) {
+            		const porters = calculateRotation(year, weekNumber);
+
+            		const table = document.createElement("table");
+            		table.border = "1";
+
+            	//header
+            	const header = table.createTHead();
+            	const headerRow = header.insertRow();
+            	const runHeader = document.createElement("th");
+            	runHeader.innerText = "Run Number";
+            	const porterHeader = document.createElement("th");
+            	porterHeader.innerText = "Porter";
+            	headerRow.appendChild(runHeader);
+            	headerRow.appendChild(porterHeader);
+
+            	//body
+            	const body = table.createTBody();
+            	for (let i = 0; i < porters.length; i++) {
+                	const row = body.insertRow();
+                	const runCell = row.insertCell();
+                	const porterCell = row.insertCell();
+
+                	runCell.innerText = i + 1; 
+                	porterCell.innerText = porters[i]; 
+            		}
+
+            	const container = document.getElementById("table-container");
+            	container.innerHTML = ""; 
+            	container.appendChild(table);
+        	}
+
+        	//button
+        	function updateTable() {
+            		const year = parseInt(document.getElementById("year").value);
+            		const week = parseInt(document.getElementById("week").value);
+            		if (!isNaN(year) && !isNaN(week) && week >= 1 && week <= 52) {
+                		generateTable(year, week);
+            		} else {
+                		alert("Eek please enter valid data :o");
+            		}
+        }
+
+    	window.onload = displayCurrentRotation;
+    	</script>
+</body>
+</html>
